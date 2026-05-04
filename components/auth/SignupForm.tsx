@@ -14,12 +14,13 @@ const schema = z.object({
     .string()
     .min(6, 'Min 6 characters')
     .regex(/[0-9]/, 'Must contain at least one number'),
-  age: z.coerce.number().int().min(1, 'Enter your age').max(120, 'Enter valid age'),
+  age: z.number().int().min(1, 'Enter your age').max(120, 'Enter valid age'),
   bio: z.string().optional().default(''),
   terms: z.literal(true, { message: 'You must agree to the terms' }),
 });
 
-type FormValues = z.infer<typeof schema>;
+type FormInput = z.input<typeof schema>;
+type FormValues = z.output<typeof schema>;
 
 function GoogleIcon() {
   return (
@@ -45,7 +46,7 @@ export function SignupForm() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormValues>({ resolver: zodResolver(schema) });
+  } = useForm<FormInput, unknown, FormValues>({ resolver: zodResolver(schema) });
 
   const { mutate, isPending, error } = useSignupMutation();
 
@@ -103,7 +104,7 @@ export function SignupForm() {
       {/* Age */}
       <div>
         <Label htmlFor="age">age</Label>
-        <Input id="age" type="number" placeholder="your age" min={1} max={120} {...register('age')} />
+        <Input id="age" type="number" placeholder="your age" min={1} max={120} {...register('age', { valueAsNumber: true })} />
         {errors.age && <p className="mt-1.5 text-xs text-red-400">{errors.age.message}</p>}
       </div>
 
