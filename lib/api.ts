@@ -19,6 +19,7 @@ api.interceptors.response.use(
   async (err) => {
     const original = err.config;
     if (err.response?.status !== 401 || original._retry) throw err;
+    if (original.url?.includes('/auth/refresh')) throw err;
     original._retry = true;
 
     const refreshToken = tokens.getRefresh();
