@@ -8,11 +8,31 @@ import { Label } from '@/components/ui/label';
 import { useLoginMutation } from '@/lib/auth-mutations';
 
 const schema = z.object({
-  phone: z.string().min(10, 'Enter valid phone number'),
+  phone: z.string().regex(/^\+7\d{10}$/, 'Enter valid phone: +7XXXXXXXXXX'),
   password: z.string().min(6, 'Min 6 characters'),
+  rememberMe: z.boolean().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
+
+function GoogleIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
+      <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+      <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+      <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+    </svg>
+  );
+}
+
+function GithubIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+    </svg>
+  );
+}
 
 export function LoginForm() {
   const {
@@ -23,54 +43,83 @@ export function LoginForm() {
 
   const { mutate, isPending, error } = useLoginMutation();
 
-  const onSubmit = (data: FormValues) => mutate(data);
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-      <div>
-        <Label htmlFor="phone">Phone</Label>
-        <Input
-          id="phone"
-          type="tel"
-          placeholder="+79991234567"
-          autoComplete="tel"
-          {...register('phone')}
-        />
-        {errors.phone && <p className="mt-1 text-xs text-red-400">{errors.phone.message}</p>}
+    <form onSubmit={handleSubmit((d) => mutate({ phone: d.phone, password: d.password }))} className="flex flex-col gap-4">
+      {/* Social buttons */}
+      <div className="grid grid-cols-2 gap-3">
+        <button
+          type="button"
+          className="flex items-center justify-center gap-2 h-10 rounded-lg border border-[#1e2e1e] bg-[#0d1410] text-[#e2fce4] text-sm font-medium hover:bg-[#111a12] transition-colors"
+        >
+          <GoogleIcon />
+          Google
+        </button>
+        <button
+          type="button"
+          className="flex items-center justify-center gap-2 h-10 rounded-lg border border-[#1e2e1e] bg-[#0d1410] text-[#e2fce4] text-sm font-medium hover:bg-[#111a12] transition-colors"
+        >
+          <GithubIcon />
+          GitHub
+        </button>
       </div>
 
+      {/* Divider */}
+      <div className="flex items-center gap-3 my-1">
+        <div className="flex-1 h-px bg-[#1a2d1a]" />
+        <span className="text-xs text-[#3a5a3a] font-mono">or continue with phone</span>
+        <div className="flex-1 h-px bg-[#1a2d1a]" />
+      </div>
+
+      {/* Phone */}
       <div>
-        <Label htmlFor="password">Password</Label>
-        <Input
-          id="password"
-          type="password"
-          placeholder="••••••••"
-          autoComplete="current-password"
-          {...register('password')}
-        />
-        {errors.password && <p className="mt-1 text-xs text-red-400">{errors.password.message}</p>}
+        <Label htmlFor="phone">phone</Label>
+        <Input id="phone" type="tel" placeholder="+79001234567" autoComplete="tel" {...register('phone')} />
+        {errors.phone && <p className="mt-1.5 text-xs text-red-400">{errors.phone.message}</p>}
+      </div>
+
+      {/* Password */}
+      <div>
+        <Label htmlFor="password">password</Label>
+        <Input id="password" type="password" placeholder="••••••••" autoComplete="current-password" {...register('password')} />
+        {errors.password && <p className="mt-1.5 text-xs text-red-400">{errors.password.message}</p>}
+      </div>
+
+      {/* Remember me + Forgot password */}
+      <div className="flex items-center justify-between">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            {...register('rememberMe')}
+            className="w-4 h-4 rounded border border-[#1e2e1e] bg-[#0d1410] accent-[#22c55e] cursor-pointer"
+          />
+          <span className="text-sm text-[#6b9e6b]">remember me</span>
+        </label>
+        <Link href="/forgot-password" className="text-sm text-[#22c55e] hover:text-[#4ade80] transition-colors">
+          forgot password?
+        </Link>
       </div>
 
       {error && (
         <p className="text-xs text-red-400 text-center">
-          {(error as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-            'Login failed. Check credentials.'}
+          {(error as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Invalid credentials.'}
         </p>
       )}
 
+      {/* Submit */}
       <button
         type="submit"
         disabled={isPending}
-        className="relative w-full h-11 rounded-xl font-semibold text-sm text-[#080d08] bg-[#22c55e] hover:bg-[#16a34a] disabled:opacity-60 transition-colors duration-200 overflow-hidden group"
+        className="flex items-center justify-center gap-2 w-full h-11 rounded-lg bg-[#1a2d1a] hover:bg-[#1e3520] border border-[#2a4a2a] text-[#e2fce4] text-sm font-medium transition-colors disabled:opacity-60 mt-1"
       >
-        <span className="relative z-10">{isPending ? 'Signing in…' : 'Sign in'}</span>
-        <span className="absolute inset-0 bg-gradient-to-r from-[#22c55e] to-[#4ade80] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        {isPending ? 'signing in…' : (
+          <>sign in <span className="text-base">→</span></>
+        )}
       </button>
 
-      <p className="text-center text-sm text-[#86efac]">
-        No account?{' '}
-        <Link href="/signup" className="text-[#22c55e] hover:text-[#4ade80] font-medium transition-colors">
-          Sign up
+      <p className="text-center text-sm text-[#4a6e4a]">
+        no account?{' '}
+        <Link href="/signup" className="text-[#22c55e] hover:text-[#4ade80] transition-colors">
+          create one →
         </Link>
       </p>
     </form>

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { tokens } from './tokens';
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000',
+  baseURL: process.env.NEXT_PUBLIC_API_URL ?? '/api',
   headers: { 'Content-Type': 'application/json' },
 });
 
