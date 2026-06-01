@@ -79,6 +79,20 @@ export function useSignupMutation() {
   });
 }
 
+export function useSendOtpMutation() {
+  return useMutation({
+    mutationFn: (phone: string) =>
+      api.post('/auth/send-otp', { phone }).then((r) => r.data as string),
+  });
+}
+
+export function useVerifyOtpMutation() {
+  return useMutation({
+    mutationFn: ({ phone, code }: { phone: string; code: string }) =>
+      api.post<boolean>('/auth/verify-otp', { phone, code }).then((r) => r.data),
+  });
+}
+
 export function useLogoutMutation() {
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const router = useRouter();
